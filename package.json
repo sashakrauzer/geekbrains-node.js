@@ -1,0 +1,19 @@
+{
+  "name": "2-lesson",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sashakrauzer/geekbrains-node.js.git"
+  },
+  "author": "Aleksandr Gusev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sashakrauzer/geekbrains-node.js/issues"
+  },
+  "homepage": "https://github.com/sashakrauzer/geekbrains-node.js#readme"
+}
