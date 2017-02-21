@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/sashakrauzer/geekbrains-node.js/issues"
   },
-  "homepage": "https://github.com/sashakrauzer/geekbrains-node.js#readme"
+  "homepage": "https://github.com/sashakrauzer/geekbrains-node.js#readme",
+  "dependencies": {
+    "colors": "^1.1.2"
+  }
 }
