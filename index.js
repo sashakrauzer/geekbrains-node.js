@@ -1,3 +1,5 @@
+'use strict'
+
 const readline = require('readline')
 const colors = require('colors')
 
@@ -9,27 +11,26 @@ const rl = readline.createInterface({
 
 rl.prompt()
 
-rl.on('line', (line) => {
+rl.on('line', (line) => { // Действия с вводом пользователя
   if (line.trim().toLowerCase() === 'q') rl.close()
   // if(line.trim().toLowerCase() == 'новая игра')
   switch (state) {
-    case 0:
+    case 0: // Ввод имени
       user.name = line
       state = 1
       break
-    case 1:
+    case 1: // Ставка
       rate = line
       user.cash -= rate
       state = 2
       break
-    case 3:
-      if (line.trim().toLowerCase() === 'еще') distributionForUser()
+    case 5: // Обработка вариантов после первой раздачи
+      if (line.trim().toLowerCase() === 'еще') state = 12
       else if (line.trim().toLowerCase() === 'достаточно') {
-        distributionDealer()
-        state = 4
+        state = 6
       }
       break
-    case 9:
+    case 9: // Любой ввод, кроме 'q', переносит в начало игры
       state = 1
       break
     default:
@@ -49,6 +50,8 @@ class User {
     this.hand = []
     this.score = 0
     this.name = ''
+    this.bj = 0
+    this.loss = 0
   }
 }
 
@@ -56,6 +59,9 @@ class Dealer {
   constructor () {
     this.hand = []
     this.score = 0
+    this.bj = 0
+    this.maybeBlackJack = 0
+    this.loss = 0
   }
 }
 
@@ -72,21 +78,50 @@ function start () {
       whatsYourName()
       break
     case 1:
+      console.log('1'.red)
+      clearData()
       bet()
       break
     case 2:
+      console.log('2'.red)
       firstDistribution()
       state = 3
+      start()
+      break
     case 3:
-      gameStatus()
-      if (checkLost()) break
-      else if (checkBlackJack()) break
-      else options()
+      console.log('3'.red)
+      state = 4
+      pointsCount()
+      if (check()) break
+      start()
       break
     case 4:
+      console.log('4'.red)
       gameStatus()
-      if (checkLost()) break
-      finish()
+      options()
+      state = 5
+      break
+    case 5: // Выбор
+      console.log('5'.red)
+      pointsCount()
+      if (check()) break
+      gameStatus()
+      options()
+      break
+    case 6:
+      console.log('6'.red)
+      distributionDealer()
+      pointsCount()
+      if (check()) break
+      gameStatus()
+      break
+    case 12:
+      console.log('12'.red)
+      distributionForUser()
+      pointsCount()
+      if (check()) break
+      state = 5
+      start()
       break
     default:
       break
@@ -96,27 +131,38 @@ function start () {
 start() // Первый запуск игры
 
 /*
-  Вспомогательные функции
+Вспомогательные функции
 */
 
-function checkBlackJack () {
+function clearData () {
+  user.hand = []
+  user.bj = 0
+  user.score = 0
+  user.loss = 0
+  dealer.hand = []
+  dealer.score = 0
+  dealer.bj = 0
+  dealer.maybeBlackJack = 0
+  dealer.loss = 0
+}
+
+function checkBlackJack (whom) {
   pointsCount()
-  if (state === 3) {
-    // console.log('Очки', user.score);
-    if (user.score === 21) {
-      console.log('У вас Блэк Джек!\n')
-      // return true;
-      if (dealer.score === 10) {
-        console.log('У вас Блэк Джек!\nНо у дилера есть шанс')
-      }
-    }
+  if (whom.score === 21) {
+    blackJack(whom)
+    return true
+  } else {
+    return false
   }
-  // else if(state == 4) {
-  //   if(dealer.score > 21) {
-  //     dealerLost();
-  //     return true;
-  //   }
-  // }
+}
+
+function blackJack (whom) {
+  if (whom === user) {
+    console.log(`У вас Блэк Джек! Поздравляю!\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
+    user.cash += rate * 1.5 + rate
+  } else if (whom === dealer) {
+    console.log(`У крупье Блэк Джек, вы проиграли.\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
+  }
 }
 
 function whatsYourName () {
@@ -131,83 +177,53 @@ function options () {
   console.log('Введите "Еще" если хотите получить карту\nИли введите "Достаточно" и дилер начнет раздавать себе.')
 }
 
-function finish () {
-  pointsCount()
-  // console.log('finish');
-  if (user.score > dealer.score) {
-    // console.log('finish2');
-    console.log('Победа'.green, user.score, dealer.score)
-    dealerLost()
-    // console.log(`Ваши очки: ${user.score} \nОчки крупье: ${dealer.score}`);
-  } else if (user.score < dealer.score) {
-    console.log('Поражение'.red, user.score, dealer.score)
-    playerLoses()
-  } else {
-    draw()
-  }
-}
+// function finish () {
+//   pointsCount()
+//   // console.log('finish');
+//   if (user.score > dealer.score) {
+//     // console.log('finish2');
+//     console.log('Победа'.green, user.score, dealer.score)
+//     dealerLost()
+//     // console.log(`Ваши очки: ${user.score} \nОчки крупье: ${dealer.score}`);
+//   } else if (user.score < dealer.score) {
+//     console.log('Поражение'.red, user.score, dealer.score)
+//     playerLoses()
+//   } else {
+//     draw()
+//   }
+// }
 
 function isNumeric (n) { // Проверка на число
   return !isNaN(parseFloat(n)) && isFinite(n)
 }
 
-function gameStatus () {
+function gameStatus () { // Вывод значений игры
   console.log(`Карты дилера: ${dealer.hand}\nВаши карты: ${user.hand}\nТекущая ставка: ${rate}\nВаш счет: ${user.cash}`)
 }
 
-function checkLost (whom) {
-  pointsCount()
-  if (state === 3) {
-    // console.log('Очки', user.score);
-    if (user.score > 21) {
-      playerLoses()
-      return true
-    }
-  } else if (state === 4) {
-    if (dealer.score > 21) {
-      dealerLost()
-      return true
-    }
-  }
-}
-
-function playerLoses () {
-  if (state === 3) {
-    console.log(`Сумма ваших очков превышает 21, вы проиграли:(\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
-    state = 9
-    user.hand = []
-    dealer.hand = []
-  } else if (state === 4) {
-    console.log('Поражение'.red, user.score, dealer.score)
-    console.log(`К сожалению вы проиграли:(\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
-    state = 9
-    user.hand = []
-    dealer.hand = []
-  }
-}
-
-function dealerLost () {
-  console.log(`Поздравляю! Вы выиграли!\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
-  state = 9
-  user.hand = []
-  dealer.hand = []
-  user.cash += rate * 2
-}
-
-// function dealerLost() {
-//   console.log(`Вау, у вас Блэк Джек! Поздравляю!\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`);
-//   state = 9;
-//   user.hand = [];
-//   dealer.hand = [];
-//   user.cash += rate * 2;
+// function checkLost (whom) { // Проверка на проигрыш
+//   pointsCount()
+//   if (whom === user && user.score > 21) {
+//     loss(whom)
+//     return true
+//   } else if (whom === dealer && dealer.score > 21) {
+//     loss(whom)
+//     return true
+//   }
 // }
 
-function draw () {
+function loss (whom) {
+  if (whom === user) {
+    console.log(`Сумма ваших очков превышает 21, вы проиграли:(\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
+  } else if (whom === dealer) {
+    console.log(`Поздравляю! Вы выиграли!\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
+    user.cash += rate * 2
+  }
+}
+
+function draw () { // Ничья
   console.log(`У вас ничья!\nВаши карты: ${user.hand} \nКарты крупье: ${dealer.hand}\nЕсли хотите повторить игру, введите "Новая игра" или введите "q" чтобы выйти.`)
   user.cash += +rate
-  state = 9
-  user.hand = []
-  dealer.hand = []
 }
 
 function randomInteger (min, max) { // Получение рандомного числа
@@ -216,58 +232,41 @@ function randomInteger (min, max) { // Получение рандомного �
   return rand
 }
 
-function distribution (user, dealer) { // Раздача колоды
-  if (user) {
-    user.push(cardDeck[randomInteger(0, 12)])
-    // console.log(`Ваша у игрока: ${user.pull}`);
-    return user
-  } else if (dealer) {
-    dealer.push(cardDeck[randomInteger(0, 12)])
-    return dealer
-  }
-}
+// function distribution (user, dealer) { // Раздача колоды
+//   if (user) {
+//     user.push(cardDeck[randomInteger(0, 12)])
+//     // console.log(`Ваша у игрока: ${user.pull}`);
+//     return user
+//   } else if (dealer) {
+//     dealer.push(cardDeck[randomInteger(0, 12)])
+//     return dealer
+//   }
+// }
 
-function distributionForUser () {
+function distributionForUser () { // Карта игроку
   user.hand.push(cardDeck[randomInteger(0, 12)])
 }
 
 function distributionDealer () {
-  while (true) {
-    pointsCount()
-    if (dealer.score < 17) dealer.hand.push(cardDeck[randomInteger(0, 12)])
-    else break
+  dealer.hand.push(cardDeck[randomInteger(0, 12)])
+  pointsCount()
+  if (dealer.score < 17) {
+    distributionDealer()
   }
 }
 
 function firstDistribution () { // Раздача после ставки
-  user.hand = distribution(user.hand)
-  user.hand = distribution(user.hand)
+  user.hand.push('Валет')
+  user.hand.push('Туз')
   console.log('карты игрока'.red, user.hand)
-  dealer.hand = distribution(null, dealer.hand)
-}
-
-function isBlackJack () { // Проверка карт пользователя на наличие комбинации Блэк Джек
-  let i = 0
-  while (i < user.hand.length) {
-    if (isNumeric(user.hand[i])) {
-      user.score = user.hand[i]
-    } else if (user.hand[i] === 'Туз') {
-      if (user.score + 11 === 22) {
-        user.score += 1
-      } else {
-        user.score += 11
-      }
-    } else {
-      user.score += 10
-    }
-    i++
-  }
+  dealer.hand.push('Туз')
 }
 
 function pointsCount () {
-  user.score = 0
+  console.log('pointsCount'.blue)
+  user.score = 0 // обнуляем
   let i = 0
-  while (i < user.hand.length) {
+  while (i < user.hand.length) { // Подсчет очков игрока
     if (isNumeric(user.hand[i])) {
       user.score += user.hand[i]
     } else if (user.hand[i] === 'Туз') {
@@ -284,7 +283,7 @@ function pointsCount () {
   // console.log('Очки игрока'.rainbow, user.score);
   dealer.score = 0
   let k = 0
-  while (k < dealer.hand.length) {
+  while (k < dealer.hand.length) { // Подсчет очков крупье
     if (isNumeric(dealer.hand[k])) {
       dealer.score += dealer.hand[k]
     } else if (dealer.hand[k] === 'Туз') {
@@ -298,11 +297,102 @@ function pointsCount () {
     }
     k++
   }
-  // console.log('Очки дилера'.rainbow, dealer.score);
 }
 
-function win32 () {
-  console.log(`Поздравляю! Вы победили. Ваш выйгрыш ${rate * 1.5}`)
-  user.cash += rate * 1.5
-  console.log('Введите "Повтор" если хотите сыграть еще раз.')
+function check () {
+  console.log('очки игрока'.red, user.score)
+  console.log('очки крупье'.red, dealer.score)
+  // Проверка крупье
+  if (dealer.hand.length === 1 && dealer.score >= 10) { // Может ли быть блэк джек у крупье
+    dealer.maybeBlackJack = 1
+    console.log('dealer mb bj'.red)
+  } else if (dealer.hand.length === 2 && dealer.score !== 21) { // не блэк джек
+    dealer.maybeBlackJack = 0
+    console.log('dealer no bj'.red)
+  } else if (dealer.hand.length === 2 && dealer.score === 21) {
+    console.log('dealer have bj'.red)
+    dealer.bj = 1
+  }
+  if (dealer.score > 21) {
+    dealer.loss = 1
+    console.log('dealer lost'.red)
+  }
+
+  // Проверка игрока
+  if (user.hand.length === 2 && user.score === 21) { // у игрока блэк джек?
+    user.bj = 1
+    console.log('user have bj'.red)
+  } else if (user.score > 21) {
+    user.loss = 1
+    console.log('user loss'.red)
+  }
+  // Результат
+
+  // Игрок
+  if (user.loss) {
+    console.log('user lost'.red)
+    loss(user)
+    state = 9
+    return true
+  } else if (user.bj && !dealer.maybeBlackJack && !dealer.bj) {
+    console.log('user win bj'.red)
+    blackJack(user)
+    state = 9
+    return true
+  }
+
+  // Крупье
+  if (dealer.loss) {
+    console.log('dealer lost'.red)
+    loss(dealer)
+    state = 9
+    return true
+  } else if (dealer.bj && !user.bj) {
+    console.log('dealer win bj'.red)
+    blackJack(dealer)
+    state = 9
+    return true
+  }
+
+  // Ничья
+  if (dealer.bj && user.bj) {
+    console.log('draw'.red)
+    draw()
+    state = 9
+    return true
+  }
+  // if (dealer.hand.length === 2 && dealer.score === 21) {
+  //   console.log('dealer have bj'.red)
+  //   dealer.bj = 1
+  //   if (user.bj) {
+  //     console.log('draw'.red)
+  //     draw()
+  //     state = 9
+  //     return true
+  //   } else {
+  //     console.log('dealer win bj'.red)
+  //     blackJack(dealer)
+  //     return true
+  //   }
+  // } else if (dealer.score > 21) {
+  //   console.log('dealer lost'.red)
+  //   loss(dealer)
+  //   state = 9
+  //   return true
+  // }
+  //
+  //  else { // Иначе пользователь победил
+  //   console.log('user win bj'.red)
+  //   blackJack(user)
+  //   state = 9
+  //   return true
+  //   }
+  //
+  // loss(user)
+  // state = 9
+  // return true
+  //
+  // loss(dealer)
+  // state = 9
+  // return true
 }
