@@ -13,35 +13,38 @@ const rl = readline.createInterface({
 rl.prompt()
 
 rl.on('line', (line) => { // Действия с вводом пользователя
-  if (line.trim().toLowerCase() === 'q') rl.close()
-  switch (state) {
-    case 0: // Ввод имени
-      user.name = line
-      state = 1
-      break
-    case 1: // Ставка
-      rate = line
-      user.cash -= rate
-      state = 2
-      break
-    case 5: // Обработка вариантов после первой раздачи
-      if (line.trim().toLowerCase() === 'еще') state = 12
-      else if (line.trim().toLowerCase() === 'достаточно') {
-        state = 6
-      }
-      break
-    case 9: // Любой ввод, кроме 'q', переносит в начало игры
-      state = 1
-      break
-    default:
-      console.log(`Say what? I might have heard '${line.trim()}'`)
-      break
+  if (line.trim().toLowerCase() === 'q') {
+    rl.close()
+  } else {
+    switch (state) {
+      case 0: // Ввод имени
+        user.name = line
+        state = 1
+        break
+      case 1: // Ставка
+        rate = line
+        user.cash -= rate
+        state = 2
+        break
+      case 5: // Обработка вариантов после первой раздачи
+        if (line.trim().toLowerCase() === 'еще') state = 12
+        else if (line.trim().toLowerCase() === 'достаточно') {
+          state = 6
+        }
+        break
+      case 9: // Любой ввод, кроме 'q', переносит в начало игры
+        state = 1
+        break
+      default:
+        console.log(`Say what? I might have heard '${line.trim()}'`)
+        break
+    }
+    start()
+    rl.prompt()
   }
-  start()
-  rl.prompt()
 }).on('close', () => {
   console.log('Счастливо!')
-  fs.writeFile('./gamelog.json', JSON.stringify(gameLog), () => {
+  fs.writeFile(pathLogFile, JSON.stringify(gameLog), () => {
     process.exit(0)
   })
 })
@@ -69,14 +72,15 @@ class Dealer {
 
 let user = new User()
 let dealer = new Dealer()
-
 let rate = 0 // Начальная ставка
 let state = 0 // Стартовое состояние
 const cardDeck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Валет', 'Дама', 'Король', 'Туз'] // Будет использоваться бесконечная колода
 let gameLog = {}
 let countMaxWin = 0
 let countMaxLost = 0
-fs.readFile('./gamelog.json', 'utf-8', (err, data) => {
+const pathLogFile = process.argv.slice(2)[0] // Пусть к файлу для лога
+
+fs.readFile(pathLogFile, 'utf-8', (err, data) => { // Если в файле для лога уже есть данные, взять их. Иначе создать новый объект
   if (err) throw err
   if (data) {
     gameLog = JSON.parse(data)
