@@ -101,45 +101,45 @@ function start () { // Основная функция, выполняет то�
       whatsYourName()
       break
     case 1:
-      console.log('1'.red)
+      // console.log('1'.red)
       clearData()
       bet()
       break
     case 2:
-      console.log('2'.red)
+      // console.log('2'.red)
       firstDistribution()
       state = 3
       start()
       break
     case 3:
-      console.log('3'.red)
+      // console.log('3'.red)
       state = 4
       pointsCount()
       if (check()) break
       start()
       break
     case 4:
-      console.log('4'.red)
+      // console.log('4'.red)
       gameStatus()
       options()
       state = 5
       break
     case 5: // Выбор
-      console.log('5'.red)
+      // console.log('5'.red)
       pointsCount()
       if (check()) break
       gameStatus()
       options()
       break
     case 6:
-      console.log('6'.red)
+      // console.log('6'.red)
       if (distributionDealer()) break
       pointsCount()
       if (check()) break
       gameStatus()
       break
     case 12:
-      console.log('12'.red)
+      // console.log('12'.red)
       getCard(user)
       pointsCount()
       if (check()) break
@@ -211,12 +211,12 @@ function distributionDealer () {
 function firstDistribution () { // Раздача после ставки
   getCard(user)
   getCard(user)
-  console.log('карты игрока'.red, user.hand)
+  // console.log('карты игрока'.red, user.hand)
   getCard(dealer)
 }
 
 function pointsCount () {
-  console.log('pointsCount'.blue)
+  // console.log('pointsCount'.blue)
   user.score = 0 // обнуляем
   let i = 0
   while (i < user.hand.length) { // Подсчет очков игрока
@@ -255,15 +255,15 @@ function check () { // Проверка очков на выйгрыш
   if (dealer.hand.length === 1) {
     if (dealer.score >= 10) {
       dealer.maybeBlackJack = 1
-      console.log('dealer mb bj'.red)
+      // console.log('dealer mb bj'.red)
       // dealer mb bj
     }
     if (user.hand.length === 2 && user.score === 21) {
       user.bj = 1
-      console.log('user bj'.red)
+      // console.log('user bj'.red)
       // user bj
       if (!dealer.maybeBlackJack) {
-        console.log('user win bj'.red)
+        // console.log('user win bj'.red)
         // user win bj
         blackJack(user)
         state = 9
@@ -271,7 +271,7 @@ function check () { // Проверка очков на выйгрыш
       }
     }
     if (user.hand.length > 2 && user.score > 21) {
-      console.log('user has a lot of'.red)
+      // console.log('user has a lot of'.red)
       // user has a lot of
       aLotOf(user)
       state = 9
@@ -279,42 +279,42 @@ function check () { // Проверка очков на выйгрыш
     }
   } else if (dealer.hand.length === 2) {
     if (dealer.score !== 21 && user.bj) {
-      console.log('user win bj'.red)
+      // console.log('user win bj'.red)
       // user win bj
       blackJack(user)
       state = 9
       return true
     }
     if (dealer.score === 21 && user.bj) {
-      console.log('draw bj'.red)
+      // console.log('draw bj'.red)
       // draw bj
       drawBj()
       state = 9
       return true
     }
     if (dealer.score === 21 && !user.bj) {
-      console.log('dealer win bj'.red)
+      // console.log('dealer win bj'.red)
       // dealer win bj
       blackJack(dealer)
       state = 9
       return true
     }
     if (dealer.score >= 17 && user.score > dealer.score) {
-      console.log('user win'.red)
+      // console.log('user win'.red)
       // user win
       loss(dealer)
       state = 9
       return true
     }
     if (user.score < dealer.score) {
-      console.log('dealer win'.red)
+      // console.log('dealer win'.red)
       // dealer win
       loss(user)
       state = 9
       return true
     }
     if (dealer.score >= 17 && user.score === dealer.score) {
-      console.log('draw'.red)
+      // console.log('draw'.red)
       // draw
       draw()
       state = 9
@@ -322,28 +322,28 @@ function check () { // Проверка очков на выйгрыш
     }
   } else if (dealer.hand.length > 2) {
     if (dealer.score >= 17 && user.score > dealer.score) {
-      console.log('user win'.red)
+      // console.log('user win'.red)
       // user win
       loss(dealer)
       state = 9
       return true
     }
     if (dealer.score > 21) {
-      console.log('dealer has a lot of'.red)
+      // console.log('dealer has a lot of'.red)
       // dealer has a lot of
       aLotOf(dealer)
       state = 9
       return true
     }
     if (dealer.score > user.score) {
-      console.log('dealer win'.red)
+      // console.log('dealer win'.red)
       // dealer win
       loss(user)
       state = 9
       return true
     }
     if (dealer.score >= 17 && user.score === dealer.score) {
-      console.log('draw'.red)
+      // console.log('draw'.red)
       // draw
       draw()
       state = 9
