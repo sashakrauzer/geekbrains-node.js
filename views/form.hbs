@@ -9,7 +9,7 @@
     <h1>Посмотрите новости</h1>
     <form class="cf" method="post" action="">
         <div class="half left cf">
-            <select onchange="this.style.color = 'black'" class="" name="news-servise" required="">
+            <select onchange="this.style.color = 'black'; showCategory(this.value)" class="" name="servise" required="">
                 <option value="" disabled selected>Выберите сервис новостей</option>
                 <option value="yandex">Яндекс Новости</option>
                 <option value="lenta">Lenta.ru</option>
@@ -18,30 +18,50 @@
                 <option value="bbc">BBC</option>
                 <option value="mailru">Новости@mail.ru</option>
             </select>
-            <select onchange="this.style.color = 'black'" class="" name="" required="">
+            <select onchange="this.style.color = 'black'" style="display: none" class="" id="category" name="category" required="">
                 <option value="" disabled selected>Выберите Категорию</option>
-                <option value="">Спорт</option>
-                <option value="">Экономика</option>
-                <option value="">Наука</option>
-                <option value="">В мире</option>
-                <option value="">Авто</option>
-                <option value="">Здоровье</option>
-                <script>
-                for(let i = 0; i < 5; i++) {
-                    document.write('<option value="">Наука</option>');
-                }
-                </script>
+                <option value="sport">Спорт</option>
+                <option value="economy">Экономика</option>
+                <option value="science">Наука</option>
+                <option value="world">В мире</option>
+                <option value="auto">Авто</option>
+                <option value="health">Здоровье</option>
             </select>
-            <select onchange="this.style.color = 'black'" class="" name="" required="">
+            <select onchange="this.style.color = 'black'" class="" name="amount" required="">
                 <option value="" disabled selected>Выберите количество новостей</option>
-                <option value="">1</option>
-                <option value="">2</option>
-                <option value="">3</option>
-                <option value="">4</option>
-                <option value="">5</option>
+                <option value="">10</option>
+                <option value="">20</option>
+                <option value="">30</option>
             </select>
         </div>
         <input type="submit" value="Показать" id="input-submit">
     </form>
+    <script>
+    let arr = [];
+    let obj = {};
+    {{#each servises}}
+        arr = [];
+        {{#each this}}
+        arr.push('{{@key}}');
+        // console.log('{{@key}}: {{this}}');
+        {{/each}}
+        obj['{{@key}}'] = arr;
+    {{/each}}
+        // console.log(obj);
+
+    function showCategory(name) {
+        let category = document.getElementById('category');
+        let html = '';
+        let arrCat = obj[name];
+        category.style.display = 'inline-block';
+        // console.log(obj[name]);
+        for(let item = 0; item < arrCat.length; item++) {
+            html += '<option value='+arrCat[item]+'>'+arrCat[item]+'</option>';
+        }
+        console.log(html);
+        category.innerHTML = html;
+    }
+
+    </script>
 </body>
 </html>

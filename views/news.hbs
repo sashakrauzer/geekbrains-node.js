@@ -6,11 +6,14 @@
     <link rel="stylesheet" href="/styles/form.css">
 </head>
 <body>
-{{#news people}}{{firstName}} {{lastName}}{{/list}}
-<div>
-    <h3>Заголовок</h3>
-    <p>Описание</p>
-    <span>дата</span> <a href="#">ссылка на новость</a>
-</div>
+    <div class="wrapper">
+        {{#each news}}
+        <div>
+            <h3>{{this.title}}</h3>
+            <p>{{this.description}}</p>
+            <span>{{this.date}}</span> <a href="{{this.link}}" target="_blank">Ссылка на новость</a>
+        </div>
+        {{/each}}
+    </div>
 </body>
 </html>

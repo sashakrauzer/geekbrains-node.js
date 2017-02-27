@@ -40,7 +40,7 @@ const newsServises = {
         'auto': '',
     },
     'bbc': {
-        'sport': '',
+        'sport': 'http://feeds.bbci.co.uk/news/rss.xml',
         'science': '',
         'world': '',
         'health': '',
@@ -71,20 +71,27 @@ app.set('view engine', 'hbs');
 app.set('views', `${__dirname}/views`);
 
 app.use(bodyParser());
+
+// Расшарить папку статики
 app.use(express.static(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => {
     res.render('form', {
-        title: 'Заполните форму'
+        servises: newsServises
     });
 });
 
 app.post('/', (req, res) => {
-    const reqResult = request('http://feeds.bbci.co.uk/news/rss.xml');
+    let userServise = req.body['servise'];
+    let userCategory = req.body['category'];
+    let resultUrl = newsServises[userServise][userCategory];
+    console.log(resultUrl);
+    const newsArr = [];
+    const reqResult = request('https://www.vesti.ru/vesti.rss');
     reqResult.on('error', function () {
         // handle any request errors
     });
-    console.dir(req.body);
+    // console.dir();
     reqResult.on('response', function (res) {
         var stream = this; // `this` is `req`, which is a stream
 
@@ -103,12 +110,22 @@ app.post('/', (req, res) => {
         // This is where the action is!
         const stream = this; // `this` is `feedparser`, which is a stream
         const meta = this.meta; // **NOTE** the 'meta' is always available in the context of the feedparser instance
-        let item = '';
+
+        let item = {};
         // while (item = stream.read()) {
         //     console.log(item);
         // }
-        let obj = stream.read();
+        // newsArr.push(obj);
 
+        if(item = stream.read()) {
+            newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString()});
+        }
+        else {
+            // console.log(newsArr);
+            res.render('news', {
+                news: newsArr
+            });
+        }
         // console.log(obj.title);
         // console.log(obj.description);
         // console.log(obj.link);
@@ -116,12 +133,7 @@ app.post('/', (req, res) => {
         // console.log(obj.categories);
         // console.log(obj.image);
     });
-    res.render('news', {
-        people: [
-            {firstName: 'Yehuda', lastName: 'Katz'},
-            {firstName: 'Alan', lastName: 'Johnson'}
-        ]
-    });
+
 });
 
 app.listen(port, () => {
