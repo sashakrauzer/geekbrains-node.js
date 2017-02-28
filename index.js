@@ -11,26 +11,27 @@ const port = 8082;
 const feedparser = new FeedParser();
 const newsServises = {
     'yandex': {
-        'sport': 'https://news.yandex.ru/sport.rss',
-        'science': 'https://news.yandex.ru/science.rss',
-        'world': 'https://news.yandex.ru/world.rss',
-        'music': 'https://news.yandex.ru/music.rss',
-        'auto': 'https://news.yandex.ru/auto.rss',
+        'Спорт': 'https://news.yandex.ru/sport.rss',
+        'Наука': 'https://news.yandex.ru/science.rss',
+        'В мире': 'https://news.yandex.ru/world.rss',
+        'Музыка': 'https://news.yandex.ru/music.rss',
+        'Авто': 'https://news.yandex.ru/auto.rss',
+        'Интернет': 'https://news.yandex.ru/internet.rss',
+        'Технологии': 'https://news.yandex.ru/computers.rss'
     },
     'lenta': {
-        'Спорт': '1',
-        'Наука и техника': '1',
-        'Культура': '1',
-        'Путешествия': '',
-        'Бывшый СССР': '',
+        'Спорт': 'https://lenta.ru/rss/articles',
+        'Наука и техника': 'https://lenta.ru/rss/articles',
+        'Культура': 'https://lenta.ru/rss/articles',
+        'Путешествия': 'https://lenta.ru/rss/articles',
+        'Бывшый СССР': 'https://lenta.ru/rss/articles',
     },
     'vesti': {
-        'url': 'https://www.vesti.ru/vesti.rss',
-        'Политика': '',
-        'В мире': '',
-        'Происшествия': '',
-        'Спорт': '',
-        'Hi-Tech. Интернет': '',
+        'Политика': 'http://www.vesti.ru/vesti.rss',
+        'В мире': 'http://www.vesti.ru/vesti.rss',
+        'Происшествия': 'http://www.vesti.ru/vesti.rss',
+        'Спорт': 'http://www.vesti.ru/vesti.rss',
+        'Hi-Tech. Интернет': 'http://www.vesti.ru/vesti.rss',
     },
     'cnn': {
         'sport': '',
@@ -86,8 +87,9 @@ app.post('/', (req, res) => {
     let userCategory = req.body['category'];
     let resultUrl = newsServises[userServise][userCategory];
     console.log(resultUrl);
+    console.log(req.body);
     const newsArr = [];
-    const reqResult = request('https://www.vesti.ru/vesti.rss');
+    const reqResult = request(resultUrl);
     reqResult.on('error', function () {
         // handle any request errors
     });
@@ -118,7 +120,18 @@ app.post('/', (req, res) => {
         // newsArr.push(obj);
 
         if(item = stream.read()) {
-            newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString()});
+            // if(item.category) {
+
+            // for(let prop in item) {
+            //   console.log(prop);
+            // }
+            if(!item.categories[0]) {
+                newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString()});
+            } else if(item.categories[0].toLowerCase() === userCategory.toLowerCase()) {
+                newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString()});
+            }
+
+
         }
         else {
             // console.log(newsArr);
