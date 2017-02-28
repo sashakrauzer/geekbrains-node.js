@@ -7,11 +7,17 @@
 </head>
 <body>
     <div class="wrapper">
+        <a href="#" onclick="window.history.back()">&#8592;Назад</a>
+        <h1>{{title}}&nbsp;&nbsp;|&nbsp;&nbsp;{{servise}}</h1>
+        {{!-- Вывод новостей --}}
         {{#each news}}
-        <div>
+        <div style="margin-bottom: 30px;">
             <h3>{{this.title}}</h3>
-            <p>{{this.description}}</p>
-            <span>{{this.date}}</span> <a href="{{this.link}}" target="_blank">Ссылка на новость</a>
+            {{!-- Тройные фигурные скобки, чтобы не экранировать html --}}
+            <p>{{{this.description}}}</p>
+            <div><a href="{{this.link}}" target="_blank">Ссылка на новость</a></div><br>
+            <div><span>{{this.category}}</span>&nbsp;&nbsp;|&nbsp;&nbsp;<span>{{this.date}}</span></div>
+            <hr>
         </div>
         {{/each}}
     </div>

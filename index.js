@@ -1,16 +1,15 @@
 const express = require('express');
 const consolidate = require('consolidate');
 const request = require('request');
-const FeedParser = require('feedparser');
-const Handlebars = require('handlebars');
+const FeedParser = require('feedparser'); // Парсит ответ xml в объект
 const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
 const port = 8082;
 const feedparser = new FeedParser();
-const newsServises = {
-    'yandex': {
+const newsServises = { // Сервисы и их категории
+    'Yandex': {
         'Спорт': 'https://news.yandex.ru/sport.rss',
         'Наука': 'https://news.yandex.ru/science.rss',
         'В мире': 'https://news.yandex.ru/world.rss',
@@ -19,53 +18,42 @@ const newsServises = {
         'Интернет': 'https://news.yandex.ru/internet.rss',
         'Технологии': 'https://news.yandex.ru/computers.rss'
     },
-    'lenta': {
+    'LentaRu': {
         'Спорт': 'https://lenta.ru/rss/articles',
         'Наука и техника': 'https://lenta.ru/rss/articles',
         'Культура': 'https://lenta.ru/rss/articles',
         'Путешествия': 'https://lenta.ru/rss/articles',
         'Бывшый СССР': 'https://lenta.ru/rss/articles',
     },
-    'vesti': {
+    'VestiRu': {
         'Политика': 'http://www.vesti.ru/vesti.rss',
         'В мире': 'http://www.vesti.ru/vesti.rss',
         'Происшествия': 'http://www.vesti.ru/vesti.rss',
         'Спорт': 'http://www.vesti.ru/vesti.rss',
         'Hi-Tech. Интернет': 'http://www.vesti.ru/vesti.rss',
     },
-    'cnn': {
-        'sport': '',
-        'science': '',
-        'world': '',
-        'health': '',
-        'auto': '',
+    'CNN': {
+        'World sport': 'http://rss.cnn.com/rss/edition_sport.rss',
+        'Science & Space': 'http://rss.cnn.com/rss/edition_space.rss',
+        'Golf': 'http://rss.cnn.com/rss/edition_golf.rss',
+        'Football': 'http://rss.cnn.com/rss/edition_football.rss',
+        'Money': 'http://rss.cnn.com/rss/money_news_international.rss',
     },
-    'bbc': {
-        'sport': 'http://feeds.bbci.co.uk/news/rss.xml',
-        'science': '',
-        'world': '',
-        'health': '',
-        'auto': '',
+    'BBC': {
+        'Entertainment & Arts': 'http://feeds.bbci.co.uk/news/video_and_audio/entertainment_and_arts/rss.xml',
+        'Science & Environment': 'http://feeds.bbci.co.uk/news/video_and_audio/science_and_environment/rss.xml',
+        'World': 'http://feeds.bbci.co.uk/news/video_and_audio/world/rss.xml',
+        'Health': 'http://feeds.bbci.co.uk/news/video_and_audio/health/rss.xml',
+        'Politics': 'http://feeds.bbci.co.uk/news/video_and_audio/politics/rss.xml',
     },
-    'mailru': {
-        'sport': '',
-        'science': '',
-        'world': '',
-        'health': '',
-        'auto': '',
+    'MailRu': {
+        'Спорт': 'https://news.mail.ru/rss/sport/',
+        'Политика': 'https://news.mail.ru/rss/politics/',
+        'Экономика': 'https://news.mail.ru/rss/economics/',
+        'Общество': 'https://news.mail.ru/rss/society/',
+        'События': 'https://news.mail.ru/rss/incident/',
     }
 };
-
-// Помошник для hbs
-Handlebars.registerHelper('news', function(items, options) {
-    let out = '<div>';
-
-    for(let i=0, l=items.length; i<l; i++) {
-        out = out + '<li>' + options.fn(items[i]) + '</li>';
-    }
-
-    return out + '</div>';
-});
 
 app.engine('hbs', consolidate.handlebars);
 app.set('view engine', 'hbs');
@@ -76,26 +64,28 @@ app.use(bodyParser());
 // Расшарить папку статики
 app.use(express.static(path.join(__dirname, '/public')));
 
-app.get('/', (req, res) => {
+app.get('/', (req, res) => { // На GET запрос, вывести форму
+    // Форме передается объект с сервисами и категориями
     res.render('form', {
         servises: newsServises
     });
 });
 
 app.post('/', (req, res) => {
+    // Запись значений переданных из формы
     let userServise = req.body['servise'];
     let userCategory = req.body['category'];
+    let userAmount = req.body['amount'];
+    // Окончательная ссылка для получения новостей
     let resultUrl = newsServises[userServise][userCategory];
-    console.log(resultUrl);
-    console.log(req.body);
+    // Массив для сбора новостей
     const newsArr = [];
     const reqResult = request(resultUrl);
     reqResult.on('error', function () {
-        // handle any request errors
+        throw new Error('request Error');
     });
-    // console.dir();
     reqResult.on('response', function (res) {
-        var stream = this; // `this` is `req`, which is a stream
+        var stream = this;
 
         if (res.statusCode !== 200) {
             this.emit('error', new Error('Bad status code'));
@@ -105,48 +95,36 @@ app.post('/', (req, res) => {
         }
     });
     feedparser.on('error', function () {
-        // always handle errors
+        throw new Error('Feedparser Error');
     });
 
+    // После получения xml, вызывается событие readable на каждый item(новость).
     feedparser.on('readable', function () {
-        // This is where the action is!
-        const stream = this; // `this` is `feedparser`, which is a stream
-        const meta = this.meta; // **NOTE** the 'meta' is always available in the context of the feedparser instance
-
+        const stream = this;
+        const meta = this.meta;
         let item = {};
-        // while (item = stream.read()) {
-        //     console.log(item);
-        // }
-        // newsArr.push(obj);
 
-        if(item = stream.read()) {
-            // if(item.category) {
-
-            // for(let prop in item) {
-            //   console.log(prop);
-            // }
+        if(item = stream.read()) { // Если новости есть
+            // Если категория не указана, то кидаем в массив
             if(!item.categories[0]) {
-                newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString()});
-            } else if(item.categories[0].toLowerCase() === userCategory.toLowerCase()) {
-                newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString()});
+                newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString(), 'category': userCategory});
+            } else if(item.categories[0].toLowerCase().indexOf(userCategory.toLowerCase())  != -1) { // Иначе если категория указана и частично(для mail.ru) или полностью совпадает, кидаем в массив.
+                newsArr.push({'title': item.title, 'description': item.description, 'link': item.link, 'date': item.pubdate.toLocaleDateString(), 'category': item.categories});
             }
-
-
         }
-        else {
-            // console.log(newsArr);
+        else { // Если новости закончились
+            // Укоротить массив, если он длинее переданного значения из формы
+            if(newsArr.length > userAmount) {
+                newsArr.splice(userAmount, 999);
+            }
+            // Выводим страницу для новостей и передаем ей сами новости
             res.render('news', {
-                news: newsArr
+                news: newsArr,
+                title: userCategory,
+                servise: userServise
             });
         }
-        // console.log(obj.title);
-        // console.log(obj.description);
-        // console.log(obj.link);
-        // console.log(obj.author);
-        // console.log(obj.categories);
-        // console.log(obj.image);
     });
-
 });
 
 app.listen(port, () => {
