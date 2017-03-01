@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
-const port = 8082;
+const port = process.env.PORT || 8082;
 const feedparser = new FeedParser();
 const newsServises = { // Сервисы и их категории
     'Yandex': {
