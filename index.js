@@ -7,7 +7,6 @@ const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 8082;
-const feedparser = new FeedParser();
 const newsServises = { // Сервисы и их категории
     'Yandex': {
         'Спорт': 'https://news.yandex.ru/sport.rss',
@@ -72,6 +71,7 @@ app.get('/', (req, res) => { // На GET запрос, вывести форму
 });
 
 app.post('/', (req, res) => {
+    const feedparser = new FeedParser();
     // Запись значений переданных из формы
     let userServise = req.body['servise'];
     let userCategory = req.body['category'];
