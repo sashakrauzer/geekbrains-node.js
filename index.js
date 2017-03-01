@@ -3,6 +3,8 @@ const consolidate = require('consolidate');
 const request = require('request');
 const FeedParser = require('feedparser'); // Парсит ответ xml в объект
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const path = require('path');
 
 const app = express();
@@ -59,12 +61,18 @@ app.set('view engine', 'hbs');
 app.set('views', `${__dirname}/views`);
 
 app.use(bodyParser());
+// app.use(cookieParser());
+app.use(cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2']
+}));
 
 // Расшарить папку статики
 app.use(express.static(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => { // На GET запрос, вывести форму
     // Форме передается объект с сервисами и категориями
+    console.log(req.session.name);
     res.render('form', {
         servises: newsServises
     });

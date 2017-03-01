@@ -9,7 +9,7 @@
     <h1>Читайте новости</h1>
     <form class="cf" method="post" action="" autocomplete="off">
         <div class="half left cf">
-            <select onchange="this.style.color = 'black'; showCategory(this.value)" class="" name="servise" required="" value="">
+            <select onchange="this.style.color = 'black'; showCategory(this.value)" class="" id="servises" name="servise" required="" value="Yandex">
                 <option value="" disabled selected>Выберите сервис новостей</option>
                 {{!-- Вывод сервисов из переданного объекта --}}
                 {{#each servises}}
@@ -20,7 +20,7 @@
             <select onchange="this.style.color = 'black'" class="" id="category" name="category" required="" value="">
                 <option value="" disabled selected>Выберите категорию новостей</option>
             </select>
-            <select onchange="this.style.color = 'black'" class="" name="amount" required="" value="">
+            <select onchange="this.style.color = 'black'" class="" id="amount" name="amount" required="" value="10">
                 <option value="" selected>Выберите количество новостей</option>
                 <option value="10">10</option>
                 <option value="25">25</option>
@@ -45,6 +45,7 @@
 
     {{!-- Функция для вывода категорий --}}
     function showCategory(name) {
+        // За счет чего выводит?
         let category = document.getElementById('category');
         let html = '<option value="" disabled selected>Выберите Категорию</option>';
         let arrCat = obj[name];
@@ -54,6 +55,36 @@
         category.innerHTML = html;
     }
 
+    {{!-- Задает значения selectов по куки или по умолчанию --}}
+    function defaultSelected() {
+      let optionServises = document.querySelectorAll('#servises option');
+      let optionAmount = document.querySelectorAll('#amount option');
+      for(let i = 0; i < optionServises.length; i++) {
+        if(optionServises[i].value == 'Yandex') {
+          optionServises[i].selected = true;
+          showCategory('Yandex');
+          break;
+        }
+      }
+      let optionCategory = document.querySelectorAll('#category option');
+      for(let i = 0; i < optionCategory.length; i++) {
+        console.log(optionCategory.value);
+        if(optionCategory[i].value == 'Музыка') {
+          optionCategory[i].selected = true;
+          console.log(optionCategory.value);
+          break;
+        }
+      }
+      for(let i = 0; i < optionAmount.length; i++) {
+        if(optionAmount[i].value == '10') {
+          optionAmount[i].selected = true;
+          break;
+        }
+      }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      defaultSelected();
+    });
     </script>
 </body>
 </html>
