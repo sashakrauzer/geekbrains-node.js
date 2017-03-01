@@ -60,23 +60,23 @@
       let optionServises = document.querySelectorAll('#servises option');
       let optionAmount = document.querySelectorAll('#amount option');
       for(let i = 0; i < optionServises.length; i++) {
-        if(optionServises[i].value == 'Yandex') {
+        if(optionServises[i].value == {{cookie.servise}}) {
           optionServises[i].selected = true;
-          showCategory('Yandex');
+          showCategory(cookie.servise);
           break;
         }
       }
       let optionCategory = document.querySelectorAll('#category option');
       for(let i = 0; i < optionCategory.length; i++) {
         console.log(optionCategory.value);
-        if(optionCategory[i].value == 'Музыка') {
+        if(optionCategory[i].value == cookie.category) {
           optionCategory[i].selected = true;
           console.log(optionCategory.value);
           break;
         }
       }
       for(let i = 0; i < optionAmount.length; i++) {
-        if(optionAmount[i].value == '10') {
+        if(optionAmount[i].value == cookie.amount) {
           optionAmount[i].selected = true;
           break;
         }

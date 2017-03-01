@@ -71,19 +71,31 @@ app.use(cookieSession({
 app.use(express.static(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => { // На GET запрос, вывести форму
+    req.session.servise = req.session.servise || '';
+    req.session.category = req.session.category || '';
+    req.session.amount = req.session.amount || '';
+    const objCookie = {
+        servise: req.session.servise,
+        category: req.session.category,
+        amount: req.session.amount
+    };
+    // console.log(req.session.name);
     // Форме передается объект с сервисами и категориями
-    console.log(req.session.name);
     res.render('form', {
-        servises: newsServises
+        servises: newsServises,
+        cookie: objCookie
     });
 });
 
 app.post('/', (req, res) => {
     const feedparser = new FeedParser();
     // Запись значений переданных из формы
-    let userServise = req.body['servise'];
-    let userCategory = req.body['category'];
-    let userAmount = req.body['amount'];
+    let userServise = req.session.servise = req.body['servise'];
+    let userCategory = req.session.category = req.body['category'];
+    let userAmount = req.session.amount = req.body['amount'];
+    // const userServise = req.body['servise'];
+    // const userCategory = req.body['category'];
+    // const userAmount = req.body['amount'];
     // Окончательная ссылка для получения новостей
     let resultUrl = newsServises[userServise][userCategory];
     // Массив для сбора новостей
