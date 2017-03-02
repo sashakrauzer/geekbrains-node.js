@@ -3,7 +3,6 @@ const consolidate = require('consolidate');
 const request = require('request');
 const FeedParser = require('feedparser'); // Парсит ответ xml в объект
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const path = require('path');
 
@@ -61,7 +60,6 @@ app.set('view engine', 'hbs');
 app.set('views', `${__dirname}/views`);
 
 app.use(bodyParser());
-// app.use(cookieParser());
 app.use(cookieSession({
     name: 'session',
     keys: ['key1', 'key2']
@@ -79,7 +77,6 @@ app.get('/', (req, res) => { // На GET запрос, вывести форму
         category: req.session.category,
         amount: req.session.amount
     };
-    // console.log(req.session.name);
     // Форме передается объект с сервисами и категориями
     res.render('form', {
         servises: newsServises,
@@ -93,9 +90,6 @@ app.post('/', (req, res) => {
     let userServise = req.session.servise = req.body['servise'];
     let userCategory = req.session.category = req.body['category'];
     let userAmount = req.session.amount = req.body['amount'];
-    // const userServise = req.body['servise'];
-    // const userCategory = req.body['category'];
-    // const userAmount = req.body['amount'];
     // Окончательная ссылка для получения новостей
     let resultUrl = newsServises[userServise][userCategory];
     // Массив для сбора новостей
