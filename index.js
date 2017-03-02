@@ -71,9 +71,9 @@ app.use(cookieSession({
 app.use(express.static(path.join(__dirname, '/public')));
 
 app.get('/', (req, res) => { // На GET запрос, вывести форму
-    req.session.servise = req.session.servise || '';
-    req.session.category = req.session.category || '';
-    req.session.amount = req.session.amount || '';
+    req.session.servise = req.session.servise || null;
+    req.session.category = req.session.category || null;
+    req.session.amount = req.session.amount || null;
     const objCookie = {
         servise: req.session.servise,
         category: req.session.category,

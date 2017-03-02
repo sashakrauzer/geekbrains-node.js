@@ -31,6 +31,7 @@
         <input type="submit" value="Показать" id="input-submit">
     </form>
     <script>
+    console.log('{{cookie.servise}}');
     let arr = [];
     let obj = {};
 
@@ -45,6 +46,7 @@
 
     {{!-- Функция для вывода категорий --}}
     function showCategory(name) {
+        console.log('showCategory');
         // За счет чего выводит?
         let category = document.getElementById('category');
         let html = '<option value="" disabled selected>Выберите Категорию</option>';
@@ -60,23 +62,23 @@
       let optionServises = document.querySelectorAll('#servises option');
       let optionAmount = document.querySelectorAll('#amount option');
       for(let i = 0; i < optionServises.length; i++) {
-        if(optionServises[i].value == {{cookie.servise}}) {
+        if(optionServises[i].value == '{{cookie.servise}}') {
           optionServises[i].selected = true;
-          showCategory(cookie.servise);
+          showCategory('{{cookie.servise}}');
           break;
         }
       }
       let optionCategory = document.querySelectorAll('#category option');
       for(let i = 0; i < optionCategory.length; i++) {
         console.log(optionCategory.value);
-        if(optionCategory[i].value == cookie.category) {
+        if(optionCategory[i].value == '{{cookie.category}}') {
           optionCategory[i].selected = true;
           console.log(optionCategory.value);
           break;
         }
       }
       for(let i = 0; i < optionAmount.length; i++) {
-        if(optionAmount[i].value == cookie.amount) {
+        if(optionAmount[i].value == '{{cookie.amount}}') {
           optionAmount[i].selected = true;
           break;
         }
