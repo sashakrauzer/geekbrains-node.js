@@ -31,6 +31,7 @@
         <input type="submit" value="Показать" id="input-submit">
     </form>
     <script>
+    console.log('{{{cookie.category}}}');
     let arr = [];
     let obj = {};
 
@@ -59,7 +60,7 @@
       let optionServises = document.querySelectorAll('#servises option');
       let optionAmount = document.querySelectorAll('#amount option');
       for(let i = 0; i < optionServises.length; i++) {
-        if(optionServises[i].value == '{{cookie.servise}}') {
+        if(optionServises[i].value == '{{{cookie.servise}}}') {
           optionServises[i].selected = true;
           showCategory('{{cookie.servise}}');
           break;
@@ -67,7 +68,7 @@
       }
       let optionCategory = document.querySelectorAll('#category option');
       for(let i = 0; i < optionCategory.length; i++) {
-        if(optionCategory[i].value == '{{cookie.category}}') {
+        if(optionCategory[i].value == '{{{cookie.category}}}') {
           optionCategory[i].selected = true;
           break;
         }
