@@ -1,8 +1,8 @@
 const config = {
     host : 'localhost',
-    database : 'app',
-    user : 'deltabank',
-    password : 'paCAtUHY'
+    database : 'main',
+    user : 'root',
+    password : ''
 };
 
 module.exports = config;

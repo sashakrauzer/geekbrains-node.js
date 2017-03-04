@@ -3,12 +3,12 @@ const config = require('./config');
 const pool = mysql.createPool(config);
 
 const Tasks = {
-    list: function() {
+    list: function(table) {
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
                 if(err) return reject(err);
                 // используем полученное соединение
-                connection.query( 'SELECT * FROM account', function(err, results, fields) {
+                connection.query( 'SELECT * FROM ??', table,function(err, results) {
                     if(err) return reject(err);
                     // возвращаем соединение в пул
                     resolve(results);
@@ -17,51 +17,36 @@ const Tasks = {
             });
         });
     },
-    add: function(task) {
+    add: function(table, content) {
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
                 if(err) return reject(err);
-                // используем полученное соединение
-                // console.log('task', task);
-                connection.query( 'INSERT INTO task SET ?', task, function(err, results) {
+                connection.query( 'INSERT INTO ?? SET ?', [table, content], function(err, results) {
                     if(err) return reject(err);
-                    // возвращаем соединение в пул
-                    // console.log('results', results);
                     resolve(results);
                     connection.release();
                 });
             });
         });
     },
-    change: function(header, text, id) {
+    change: function(table, content, id) {
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
                 if(err) return reject(err);
-                // используем полученное соединение
-                // console.log('task', task);
-                connection.query( 'UPDATE task SET header = ?, text = ? WHERE id = ?', [header, text, id], function(err, results) {
+                connection.query( 'UPDATE ?? SET ? WHERE id = ?', [table, content, id], function(err, results) {
                     if(err) return reject(err);
-                    // возвращаем соединение в пул
-                    // console.log('results', results);
                     resolve(results);
                     connection.release();
                 });
             });
         });
     },
-    complete: function(id, callback) {
-        // TODO
-    },
-    delete: function(id) {
+    delete: function(table, id) {
         return new Promise((resolve, reject) => {
             pool.getConnection(function(err, connection) {
                 if(err) return reject(err);
-                // используем полученное соединение
-                // console.log('task', task);
-                connection.query( 'DELETE FROM task WHERE id = ?', [id], function(err, results) {
+                connection.query( 'DELETE FROM ?? WHERE id = ?', [table, id], function(err, results) {
                     if(err) return reject(err);
-                    // возвращаем соединение в пул
-                    // console.log('results', results);
                     resolve(results);
                     connection.release();
                 });
