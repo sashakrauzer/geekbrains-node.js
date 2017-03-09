@@ -5,25 +5,27 @@ const bodyParser = require('body-parser');
 const templating = require('consolidate');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const TwitterStrategy = require('passport-twitter').Strategy;
 const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 8082;
 
+// Статика
 app.use('/static', express.static(path.join(__dirname, 'public')));
+
+// Вьюхи на pug'e
 app.engine('pug', templating.pug);
 app.set('view engine', 'pug');
 app.set('views', __dirname + '/views');
 
-// const urlencodedParser = bodyParser.urlencoded({ extended: false });
-// const jsonParser = bodyParser.json();
-// const textParser = bodyParser.text({ type: 'text/html' });
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser('12345'));
 app.use(session({keys: ['secret']}));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Локальная авторизация
 passport.use(
     new LocalStrategy(
         (username, password, done) => {
@@ -41,20 +43,29 @@ passport.use(
     )
 );
 
+// Авторизация через twitter
+passport.use(new TwitterStrategy({
+    consumerKey: 'yarVtG49RyOQaknT93n8fSuNT',
+    consumerSecret: 'TOWoMCz0OzV00UmgRjKoPkaCIYa7pconfVf0W6A1RhyiNGWJu1',
+    callbackURL: 'http://localhost:8082/success'
+    },
+    function(token, tokenSecret, profile, done) {
+        console.log('tokenSecret', tokenSecret);
+        console.log('token', token);
+        console.log('profile', profile);
+        done(null, 'success');
+    }
+));
+
+// Восстановление авторизации по сессии
 passport.serializeUser(function(user, done) {
     console.log('serialize', user);
     done(null, user);
 });
-
 passport.deserializeUser(function(user, done) {
     console.log('deserialize', user);
     done(null, user);
 });
-
-// const auth = passport.authenticate('local', {
-//     successRedirect: '/user',
-//     failureRedirect: '/login'
-// });
 
 const mustBeAuthenticated = (req, res, next) => {
     if(req.isAuthenticated()) {
@@ -67,46 +78,33 @@ const mustBeAuthenticated = (req, res, next) => {
 app.all('/user', mustBeAuthenticated);
 app.all('/user/*', mustBeAuthenticated);
 
+// Форма авторизации
 app.get('/login', (req, res) => {
     res.render('login-form');
 });
 
+// Выход
 app.get('/logout', function(req, res){
     req.logout();
     res.redirect('/');
 });
 
-app.post('/login', passport.authenticate('local', { successRedirect: '/',
-    failureRedirect: '/login'}
-    ));
+// При POST запросе на роут, попробовать авторизоваться
+app.post('/login', passport.authenticate('local', { 
+    successRedirect: '/user',
+    failureRedirect: '/login'
+}
+));
 
-// app.post('/login', (req, res) => {
-    
-//     console.log(req.body);
-//     // res.json(req.body);
-//     res.send(req.body.username);
-// });
-
-// app.use((req, res, next) => {
-//     if(req.url !== '/favicon.ico' && req.url !== '/humans.txt' && req.url !== '/robots.txt') {
-        
-//         let count = req.session.count || 0;
-//         req.session.count = ++count;
-//     // res.cookie('name', 'aleksandr', {maxAge: 900000, httpOnly: true});
-//     // res.clearCookie('name');
-//         console.log('middleware', req.url);
-//         delete req.session.count;
-//         res.end(`views: ${count}`);
-        
-//     }
-//     // res.json(req.cookies);
-//     next();
-// });
+// При GET запросе на роут, запускается приложение twitter'a для авторизации
+app.get('/twitter', passport.authenticate('twitter'));
+app.get('/success',
+  passport.authenticate('twitter', { 
+      successRedirect: '/user',
+      failureRedirect: '/login' }));
 
 app.get('/', (req, res) => {
-    console.log('Cookies: ', req.cookies);
     res.end('hello');
-    // req.end();
 });
 
 app.listen(port, () => {
