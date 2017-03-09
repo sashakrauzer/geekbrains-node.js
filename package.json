@@ -11,11 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.1",
+    "consolidate": "^0.14.5",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.1",
     "express": "^4.15.2",
     "nodemon": "^1.11.0",
     "passport": "^0.3.2",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "pug": "^2.0.0-beta11"
   }
 }

@@ -1,0 +1,32 @@
+doctype html
+html(lang='ru')
+  head
+    meta(charset='utf-8')
+    title foo
+    link(href="/static/css/styles.css" rel="stylesheet")
+    script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript")
+  body
+    .login-page
+      .form
+        form.register-form(method="post" action="")
+          input(type='text', placeholder='name')
+          |  
+          input(type='password', placeholder='password')
+          |  
+          input(type='text', placeholder='email address')
+          |  
+          button create
+          p.message
+            | Already registered? 
+            a(href='#') Sign In
+        form.login-form(method="post")
+          input(type='text', placeholder='username' name='username')
+          |  
+          input(type='password', placeholder='password' name='password')
+          |  
+          button login
+          p.message
+            | Not registered? 
+            a(href='#') Create an account
+    script(src="/static/js/login-form.js")
+            
