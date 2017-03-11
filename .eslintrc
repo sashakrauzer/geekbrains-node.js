@@ -4,7 +4,7 @@
         "sourceType": "module",
         "ecmaFeatures": {
             "experimentalObjectRestSpread": true,
-            "classes": true,
+            "classes": true
         }
     },
     "rules": {
@@ -21,12 +21,12 @@
         "semi": [
             2,
             "always"
-        ],
+        ]
     },
     "env": {
         "es6": true,
         "node": true,
         "browser": true
     },
-    "extends": "eslint:recommended",
+    "extends": "eslint:recommended"
 }
